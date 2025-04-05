@@ -1,0 +1,22 @@
+Package: acb
+Type: Package
+Title: Adjust Cost Base
+Version: 0.1.0
+Author: Simon Coulombe
+Description: this packages aims to help to calculate adjusted cost base
+    especially from a CSV exported from questrade
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    DT,
+    janitor,
+    lubridate,
+    magrittr,
+    purrr,
+    readr,
+    stringr
+Depends: 
+    R (>= 3.5)
+RoxygenNote: 7.3.2
