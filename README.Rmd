@@ -19,7 +19,10 @@ knitr::opts_chunk$set(
 The goal of acb is to easily calculate the adjusted cost base for tax purpose.
 The main function is `acb::calculate_adjusted_cost_base(df)`,  but a companion function
 `acb::import_questrade_csv(path)` is also provided to easily import and prepare the data 
-from Questrade "trade confirmations" csv.
+from Questrade "trade confirmations" csv.  
+
+The goal is to compare with the T5008 tax slip provided by questrade to make sure that box 20 "cost or book value" is close enough to my liking.   
+
 
 ## Installation
 
@@ -79,3 +82,16 @@ calculate_adjusted_cost_base(df_questrade)    %>% knitr::kable()
 ### step 3   
 
 ![](man/figures/questrade3.png)
+
+### quick tip    
+
+since questrade ends up having multiple trades for a single day, here is a command I end up using  :   
+
+```{r}
+calculate_adjusted_cost_base(df_questrade) %>% 
+  dplyr::group_by(symbol,settlement_date, action) %>%
+  dplyr::summarise(dplyr::across(c( "quantity", "adjusted_cost_base_of_goods_sold", "capital_gain"), sum))  %>%
+  dplyr::ungroup() %>% 
+  dplyr::filter( action == "Sell")
+```
+

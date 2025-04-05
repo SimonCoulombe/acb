@@ -9,6 +9,9 @@ but a companion function `acb::import_questrade_csv(path)` is also
 provided to easily import and prepare the data from Questrade “trade
 confirmations” csv.
 
+The goal is to compare with the T5008 tax slip provided by questrade to
+make sure that box 20 “cost or book value” is close enough to my liking.
+
 ## Installation
 
 You can install the development version of acb like so:
@@ -106,3 +109,23 @@ calculate_adjusted_cost_base(df_questrade)    %>% knitr::kable()
 ### step 3
 
 ![](man/figures/questrade3.png)
+
+### quick tip
+
+since questrade ends up having multiple trades for a single day, here is
+a command I end up using :
+
+``` r
+calculate_adjusted_cost_base(df_questrade) %>% 
+  dplyr::group_by(symbol,settlement_date, action) %>%
+  dplyr::summarise(dplyr::across(c( "quantity", "adjusted_cost_base_of_goods_sold", "capital_gain"), sum))  %>%
+  dplyr::ungroup() %>% 
+  dplyr::filter( action == "Sell")
+#> `summarise()` has grouped output by 'symbol', 'settlement_date'. You can
+#> override using the `.groups` argument.
+#> # A tibble: 1 × 6
+#>   symbol settlement_date action quantity adjusted_cost_base_of_go…¹ capital_gain
+#>   <chr>  <date>          <chr>     <dbl>                      <dbl>        <dbl>
+#> 1 .VCN   2017-02-11      Sell        500                     16058.        1472.
+#> # ℹ abbreviated name: ¹​adjusted_cost_base_of_goods_sold
+```

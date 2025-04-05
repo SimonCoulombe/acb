@@ -12,7 +12,7 @@
 calculate_adjusted_cost_base <- function(df){
   df <- df %>%
     dplyr::group_by(symbol) %>%
-    dplyr::arrange(settlement_date, .by_group = TRUE) %>%  # Sort by date within each group
+    dplyr::arrange(settlement_date, action, .by_group = TRUE) %>%  # Sort by date within each group.  sort by action so that we alwayas buy before selling on a given day.
     dplyr::mutate(
       # Step 2: Cumulative quantity (accounting for buy/sell)
       share_balance = cumsum(quantity * dplyr::if_else(tolower(action) == "buy", 1, -1)),
@@ -48,7 +48,7 @@ calculate_adjusted_cost_base <- function(df){
         (quantity * price) - adjusted_cost_base_of_goods_sold - commission,
         NA_real_  # NA if not a valid sell
       ),
-      adjusted_cost_base_per_share = adjusted_cost_base / share_balance
+      adjusted_cost_base_per_share = dplyr::if_else(share_balance > 0, adjusted_cost_base / share_balance, NA_real_)
     ) %>%
     dplyr::ungroup()  # Ungroup after calculations
 
